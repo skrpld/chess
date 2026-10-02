@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>4D Chess</title>
+    <meta name="description" content="Four-dimensional chess on a 4×4×4×4 tesseract: play a friend on one screen or the computer." />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f2433'/%3E%3Cg fill='none' stroke='%23e9ecf2' stroke-width='2'%3E%3Crect x='6' y='6' width='14' height='14'/%3E%3Crect x='12' y='12' width='14' height='14' stroke='%23e0a33a'/%3E%3Cpath d='M6 6l6 6M20 6l6 6M6 20l6 6M20 20l6 6' stroke-width='1.5'/%3E%3C/g%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Unbounded:wght@500;700&display=swap" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="brand">
+          <svg class="logo" viewBox="0 0 40 40" aria-hidden="true">
+            <rect x="5" y="5" width="20" height="20" />
+            <rect class="logo-inner" x="15" y="15" width="20" height="20" />
+            <path d="M5 5l10 10M25 5l10 10M5 25l10 10M25 25l10 10" />
+          </svg>
+          <div>
+            <h1 data-i18n="title">4D Chess</h1>
+            <p class="tagline" data-i18n="tagline"></p>
+          </div>
+        </div>
+        <div class="top-actions">
+          <button type="button" id="btn-rules" class="btn ghost" data-i18n="rules">Rules</button>
+          <div class="seg" role="group" aria-label="Language">
+            <button type="button" data-lang="ru">RU</button>
+            <button type="button" data-lang="en">EN</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="status" aria-live="polite">
+          <div class="status-main">
+            <span class="turn-chip" id="turn-chip" aria-hidden="true"></span>
+            <div class="status-copy">
+              <p class="status-text" id="status-text"></p>
+              <p class="status-sub" id="status-sub"></p>
+            </div>
+            <span class="spinner" id="spinner" hidden></span>
+          </div>
+          <div class="status-foot">
+            <p class="status-mode" id="status-mode"></p>
+            <button type="button" id="btn-live" class="btn small" data-i18n="backToGame" hidden></button>
+          </div>
+        </section>
+
+        <section class="stage">
+          <div class="stage-scroll" id="stage-scroll">
+            <div class="hyper" id="hyper"></div>
+          </div>
+          <div class="stage-foot">
+            <div class="legend" aria-label="Axes">
+              <span class="axis"><b class="ax-x">x</b> a–d <span data-i18n="axisX"></span></span>
+              <span class="axis"><b class="ax-y">y</b> 1–4 <span data-i18n="axisY"></span></span>
+              <span class="axis"><b class="ax-z">z</b> A–D <span data-i18n="axisZ"></span></span>
+              <span class="axis"><b class="ax-w">w</b> 1–4 <span data-i18n="axisW"></span></span>
+            </div>
+            <p class="readout" id="readout" aria-live="off"></p>
+            <div class="zoom" role="group">
+              <button type="button" id="btn-zoom-out" class="btn icon" data-i18n-title="zoomOut">−</button>
+              <button type="button" id="btn-zoom-in" class="btn icon" data-i18n-title="zoomIn">+</button>
+            </div>
+          </div>
+        </section>
+
+        <aside class="panel">
+          <div class="actions">
+            <button type="button" id="btn-new" class="btn primary" data-i18n="newGame"></button>
+            <button type="button" id="btn-undo" class="btn" data-i18n="undo"></button>
+            <button type="button" id="btn-flip" class="btn" data-i18n="flip"></button>
+            <button type="button" id="btn-draw" class="btn" data-i18n="offerDraw"></button>
+            <button type="button" id="btn-resign" class="btn" data-i18n="resign"></button>
+          </div>
+
+          <section class="sheet">
+            <div class="sheet-head">
+              <h2 data-i18n="moves"></h2>
+              <div class="nav" role="group">
+                <button type="button" class="btn icon" id="nav-first" data-i18n-title="first">⏮︎</button>
+                <button type="button" class="btn icon" id="nav-prev" data-i18n-title="prev">◀︎</button>
+                <button type="button" class="btn icon" id="nav-next" data-i18n-title="next">▶︎</button>
+                <button type="button" class="btn icon" id="nav-last" data-i18n-title="last">⏭︎</button>
+              </div>
+            </div>
+            <ol class="sheet-list" id="sheet"></ol>
+          </section>
+
+          <section class="captures">
+            <h2 data-i18n="captured"></h2>
+            <div class="cap-row" id="cap-white"></div>
+            <div class="cap-row" id="cap-black"></div>
+          </section>
+
+          <section class="options">
+            <label class="check"><input type="checkbox" id="opt-hints" /> <span data-i18n="hints"></span></label>
+            <label class="check"><input type="checkbox" id="opt-coords" /> <span data-i18n="coords"></span></label>
+            <button type="button" id="btn-record" class="btn ghost" data-i18n="record"></button>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <dialog id="dlg-new" class="dlg">
+      <form method="dialog">
+        <h2 data-i18n="newGameTitle"></h2>
+        <fieldset>
+          <legend data-i18n="opponent"></legend>
+          <label class="opt"><input type="radio" name="mode" value="ai" id="mode-ai" /><span data-i18n="optComputer"></span></label>
+          <label class="opt"><input type="radio" name="mode" value="local" id="mode-local" /><span data-i18n="optHuman"></span></label>
+        </fieldset>
+        <fieldset id="fs-color">
+          <legend data-i18n="playAs"></legend>
+          <label class="opt"><input type="radio" name="color" value="white" id="color-white" /><span data-i18n="white"></span></label>
+          <label class="opt"><input type="radio" name="color" value="black" id="color-black" /><span data-i18n="black"></span></label>
+          <label class="opt"><input type="radio" name="color" value="random" id="color-random" /><span data-i18n="random"></span></label>
+        </fieldset>
+        <fieldset id="fs-level">
+          <legend data-i18n="level"></legend>
+          <label class="opt"><input type="radio" name="level" value="easy" id="level-easy" /><span data-i18n="levelEasy"></span></label>
+          <label class="opt"><input type="radio" name="level" value="medium" id="level-medium" /><span data-i18n="levelMedium"></span></label>
+          <label class="opt"><input type="radio" name="level" value="hard" id="level-hard" /><span data-i18n="levelHard"></span></label>
+        </fieldset>
+        <div class="dlg-actions">
+          <button value="cancel" class="btn" data-i18n="cancel"></button>
+          <button value="start" class="btn primary" data-i18n="start"></button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="dlg-promo" class="dlg">
+      <form method="dialog">
+        <h2 data-i18n="promoteTitle"></h2>
+        <div class="promo-row" id="promo-row"></div>
+        <div class="dlg-actions">
+          <button value="" class="btn" data-i18n="cancel"></button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="dlg-confirm" class="dlg">
+      <form method="dialog">
+        <p class="confirm-text" id="confirm-text"></p>
+        <div class="dlg-actions">
+          <button value="no" class="btn" data-i18n="no"></button>
+          <button value="yes" class="btn primary" data-i18n="yes"></button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="dlg-result" class="dlg">
+      <form method="dialog">
+        <h2 id="result-title"></h2>
+        <p id="result-text"></p>
+        <div class="dlg-actions">
+          <button value="close" class="btn" data-i18n="close"></button>
+          <button value="new" class="btn primary" data-i18n="newGame"></button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="dlg-record" class="dlg wide">
+      <form method="dialog">
+        <h2 data-i18n="recordTitle"></h2>
+        <p class="muted" data-i18n="recordHint"></p>
+        <textarea id="record-text" rows="10" spellcheck="false" autocomplete="off"></textarea>
+        <p class="error" id="record-error" hidden></p>
+        <div class="dlg-actions">
+          <button value="close" class="btn" data-i18n="close"></button>
+          <button type="button" id="btn-copy" class="btn" data-i18n="copy"></button>
+          <button type="button" id="btn-load" class="btn primary" data-i18n="load"></button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="dlg-rules" class="dlg wide">
+      <form method="dialog">
+        <div class="dlg-head">
+          <h2 data-i18n="rules"></h2>
+          <button value="close" class="btn icon" data-i18n-title="close">✕</button>
+        </div>
+        <div class="rules" data-i18n-html="rulesHtml"></div>
+      </form>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" hidden></div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
